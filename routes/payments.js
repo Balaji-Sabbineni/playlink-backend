@@ -194,6 +194,59 @@ routes.post('/earnings', async (req, res) => {
   }
 });
 
+routes.post('/week', async (req, res) => {
+  try {
+    const { ownerMobileNo } = req.body;
+
+    if (!ownerMobileNo) {
+      return res.status(400).json({ error: 'ownerMobileNo is required.' });
+    }
+
+    const timezone = 'Asia/Kolkata';
+    const today = moment().tz(timezone).endOf('day');
+    let totalSum = 0;
+
+    // Define the date ranges for the last 4 weeks
+    let dateRanges = [];
+    for (let i = 0; i < 4; i++) {
+      dateRanges.push({
+        start: today.clone().subtract(i, 'weeks').startOf('week').toDate(),
+        end: today.clone().subtract(i, 'weeks').endOf('week').toDate()
+      });
+    }
+
+    // Fetch and sum the totalAmount values from the database for each date range
+    for (let range of dateRanges) {
+      const payments = await TurfPayment.aggregate([
+        {
+          $match: {
+            ownerMobileNo: ownerMobileNo,
+            createdAt: {
+              $gte: range.start,
+              $lte: range.end
+            }
+          }
+        },
+        {
+          $group: {
+            _id: null,
+            totalAmount: { $sum: "$amount" }
+          }
+        }
+      ]);
+
+      if (payments.length > 0) {
+        totalSum += payments[0].totalAmount;
+      }
+    }
+
+    res.status(200).json({ amount:totalSum });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 
 routes.get('/interval', async (req, res) => {
   try {
