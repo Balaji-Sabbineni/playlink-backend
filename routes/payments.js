@@ -105,7 +105,7 @@ routes.post('/turf', async (req, res) => {
 });
 
 // GET /earnings API
-routes.get('/earnings', async (req, res) => {
+routes.post('/earnings', async (req, res) => {
   try {
     const { ownerMobileNo, interval } = req.body;
 
