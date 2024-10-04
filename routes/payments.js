@@ -139,7 +139,7 @@ routes.post('/earnings', async (req, res) => {
         break;
 
       case 'month':
-        for (let i = 0; i < 12; i++) {
+        for (let i = 0; i < 6; i++) {
           dateRanges.push({
             display: today.clone().subtract(i, 'months').format('MMMM'), // Show month name
             start: today.clone().subtract(i, 'months').startOf('month').toDate(),
