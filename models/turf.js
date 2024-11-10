@@ -4,7 +4,7 @@ const turfSchema = new mongoose.Schema({
   images: {
     type: String,
     default:
-      "https://aws-cloudtrail-logs-992382539042-31af9dfb.s3.ap-south-1.amazonaws.com/turf_images/truf_default.jpg",
+      `https://${process.env.S3_BUCKET_NAME}.s3.ap-south-1.amazonaws.com/turf_images/turf_default.jpg`,
   },
   category: {
     type: String,

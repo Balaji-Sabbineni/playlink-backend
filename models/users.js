@@ -11,7 +11,7 @@ const usersSchema = new mongoose.Schema({
   },
   profile: {
     type: String,
-    default: "https://aws-cloudtrail-logs-992382539042-31af9dfb.s3.ap-south-1.amazonaws.com/user_profiles/profile_default.jpg",
+    default: `https://${process.env.S3_BUCKET_NAME}.s3.ap-south-1.amazonaws.com/user_profiles/profile_default.jpeg`,
   },
   mobileno: {
     type: String,

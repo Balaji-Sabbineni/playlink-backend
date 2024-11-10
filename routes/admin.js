@@ -4,7 +4,6 @@ const AdminUser = require('../models/admin');
 const { sendOTP, resendOTP, verifyOTP } = require('otpless-node-js-auth-sdk');
 const multer = require("multer");
 const multerS3 = require("multer-s3");
-const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken"); // Add JWT for authentication
 require("dotenv").config();
 const { authenticateToken } = require('../config/authenticate');
@@ -295,10 +294,10 @@ routes.post("/verifyotp", async (req, res) => {
       return res.status(400).json({ error: "Invalid OTP" });
     }
 
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    // const hashedPassword = await bcrypt.hash(newPassword, 10);
 
-    adminUser.password = hashedPassword;
-    adminUser.otpOrderId = undefined;
+    // adminUser.password = hashedPassword;
+    // adminUser.otpOrderId = undefined;
     await adminUser.save();
 
     res.status(200).json({ message: "Password changed successfully" });
