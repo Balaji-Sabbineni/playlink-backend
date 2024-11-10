@@ -12,7 +12,7 @@ const communityGroupSchema = new mongoose.Schema({
     profileImage: {
         type: String,
         default:
-          "https://aws-cloudtrail-logs-992382539042-31af9dfb.s3.ap-south-1.amazonaws.com/community_profiles/WhatsApp_icon.png",
+          `https://${process.env.S3_BUCKET_NAME}.s3.ap-south-1.amazonaws.com/community_profiles/WhatsApp_icon.jpeg`,
       },
     groupLink: {
         type: String,

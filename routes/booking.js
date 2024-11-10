@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const Booking = require("../models/booking");
 const Turf = require("../models/turf");
+const moment = require('moment-timezone');
 
 router.post("/", async (req, res) => {
   try {
@@ -17,7 +18,7 @@ router.post("/", async (req, res) => {
     const existingBooking = await Booking.findOne({ turfId, court, date, slot });
     if (existingBooking) {
       return res.status(400).json({ message: "Slot already booked for this court." });
-    }
+    }  
 
     // Check if the total number of bookings for the slot is less than the number of courts
     const bookingsCount = await Booking.countDocuments({ turfId, date, slot });
@@ -36,7 +37,7 @@ router.post("/", async (req, res) => {
       location: turf.location,
       playWithStranger: playWithStranger || false,
       court,
-      date,
+      date: new Date(date),
       slot,
       totalMembers: playWithStranger ? totalMembers : null,
       remainingMembers: playWithStranger ? remainingMembers : null,
@@ -91,28 +92,47 @@ router.get("/playWithStrangers", async (req, res) => {
   }
 });
 
-router.get("/pastBookings", async (req, res) => {
+router.get("/pastBookings/:userId", async (req, res) => {
   try {
-    const now = new Date();
-    const currentTime = now.getTime();
-    const bookings = await Booking.find({ date: { $lt: now, $lt: currentTime } })
-      .populate('turfId', 'turfName location')
-      .sort({ date: -1 }); // Sort by date in descending order to get the most recent bookings first
+    const userId = req.params.userId;
+    if (!userId) {
+      return res.status(400).json({ error: "userId is required" });
+    }
 
-    res.json(bookings);
+    const currentDate = new Date().toISOString().split('T')[0]; // Get current date in YYYY-MM-DD format
+
+    // Get all bookings for the user
+    const allBookings = await Booking.find({ userId: userId });
+
+    // Filter past bookings: if the booking's date is today or earlier
+    const pastBookings = allBookings.filter(booking => {
+      const bookingDate = new Date(booking.date).toISOString().split('T')[0]; // Extract date in YYYY-MM-DD format
+      return bookingDate <= currentDate;
+    }).sort((a, b) => new Date(b.date) - new Date(a.date)); // Sort in descending order based on the date
+
+    res.json(pastBookings);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 });
 
-router.get("/upcomingBookings", async (req, res) => {
+router.get("/upcomingBookings/:userId", async (req, res) => {
   try {
-    const now = new Date();
-    const bookings = await Booking.find({ date: { $gte: now } })
-      .sort({ date: 1 })
-      .populate('turfId', 'turfName location');
+    const userId = req.params.userId;
+    if (!userId) {
+      return res.status(400).json({ error: "userId is required" });
+    }
 
-    res.json(bookings);
+    const currentDate = new Date().toISOString().split('T')[0];
+
+    const allBookings = await Booking.find({ userId: userId });
+
+    const upcomingBookings = allBookings.filter(booking => {
+      const bookingDate = new Date(booking.date).toISOString().split('T')[0];
+      return bookingDate > currentDate;
+    });
+
+    res.json(upcomingBookings);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

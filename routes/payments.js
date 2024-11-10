@@ -240,7 +240,7 @@ routes.post('/week', async (req, res) => {
       }
     }
 
-    res.status(200).json({ amount:totalSum });
+    res.status(200).json({ amount: totalSum });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Server error' });
