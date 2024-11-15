@@ -21,11 +21,19 @@ const upload = multer({
     s3: s3,
     bucket: process.env.S3_BUCKET_NAME,
     acl: "public-read",
+    contentType: multerS3.AUTO_CONTENT_TYPE, // Automatically set the Content-Type
     key: function (req, file, cb) {
       cb(null, `turf_images/${Date.now()}_${file.originalname}`);
     },
+    metadata: function (req, file, cb) {
+      cb(null, { fieldName: file.fieldname });
+    },
+    contentDisposition: function (req, file, cb) {
+      cb(null, "inline"); // Set Content-Disposition to inline
+    }
   }),
 });
+
 
 // Create a new turf
 routes.post("/", upload.single("image"), async (req, res) => {
